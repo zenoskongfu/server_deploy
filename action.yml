@@ -1,0 +1,63 @@
+name: "Node.js Deploy Action"
+description: "Deploy Node.js application to server via SSH"
+branding:
+    icon: "upload-cloud" # 从 https://feathericons.com/ 选择一个图标
+    color: "blue" # 可选：blue, green, orange, purple, red, yellow
+
+inputs:
+    deploy_dir:
+        description: "Directory to deploy to on the server"
+        required: true
+    server_key:
+        description: "SSH private key for server access"
+        required: true
+    server_user:
+        description: "SSH user for server access"
+        required: true
+    server_host:
+        description: "Server hostname or IP"
+        required: true
+
+runs:
+    using: "composite"
+    steps:
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+              node-version: ${{ inputs.node_version }}
+
+        - name: Install dependencies
+          shell: bash
+          run: npm ci
+
+        - name: Build
+          shell: bash
+          run: npm run build
+
+        - name: Setup SSH
+          uses: webfactory/ssh-agent@v0.8.0
+          with:
+              ssh-private-key: ${{ inputs.server_key }}
+
+        - name: Deploy
+          shell: bash
+          env:
+              DEPLOY_USER: ${{ inputs.server_user }}
+              DEPLOY_HOST: ${{ inputs.server_host }}
+              DEPLOY_DIR: ${{ inputs.deploy_dir }}
+          run: |
+              # 添加服务器到已知主机
+              ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
+
+              # 生成发布目录名
+              TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+              CODE_DIR="${DEPLOY_DIR}/${TIMESTAMP}"
+
+              # 创建发布目录
+              ssh $DEPLOY_USER@$DEPLOY_HOST "mkdir -p ${CODE_DIR}"
+
+              # 复制构建产物
+              scp -r dist/* $DEPLOY_USER@$DEPLOY_HOST:${CODE_DIR}/
+
+              # 修改软链接
+              ssh $DEPLOY_USER@$DEPLOY_HOST "ln -sfn ${CODE_DIR} ${DEPLOY_DIR}/current"

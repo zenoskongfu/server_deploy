@@ -39,7 +39,7 @@ jobs:
             #...
 
             - name: 部署到服务器
-              uses: zenoskongfu/server_deploy@0.0.1
+              uses: zenoskongfu/server_deploy@1
               with:
                   source_dir: "dist"
                   deploy_dir: "/www/wwwroot/test-github"

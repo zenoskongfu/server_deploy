@@ -1,5 +1,5 @@
-name: "Node.js Deploy Action"
-description: "Deploy Node.js application to server via SSH"
+name: "Web Deploy Action"
+description: "Deploy Web application to server via SSH"
 branding:
     icon: "upload-cloud" # 从 https://feathericons.com/ 选择一个图标
     color: "blue" # 可选：blue, green, orange, purple, red, yellow
@@ -29,19 +29,6 @@ inputs:
 runs:
     using: "composite"
     steps:
-        - name: Setup Node.js
-          uses: actions/setup-node@v4
-          with:
-              node-version: ${{ inputs.node_version }}
-
-        - name: Install dependencies
-          shell: bash
-          run: npm install
-
-        - name: Build
-          shell: bash
-          run: npm run build
-
         - name: Setup SSH
           uses: webfactory/ssh-agent@v0.8.0
           with:

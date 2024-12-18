@@ -5,6 +5,10 @@ branding:
     color: "blue" # 可选：blue, green, orange, purple, red, yellow
 
 inputs:
+    source_dir:
+        description: "Directory to build from"
+        required: true
+        default: "dist"
     deploy_dir:
         description: "Directory to deploy to on the server"
         required: true
@@ -46,6 +50,7 @@ runs:
         - name: Deploy
           shell: bash
           env:
+              SOURCE_DIR: ${{ inputs.source_dir }}
               DEPLOY_USER: ${{ inputs.server_user }}
               DEPLOY_HOST: ${{ inputs.server_host }}
               DEPLOY_DIR: ${{ inputs.deploy_dir }}
@@ -61,7 +66,7 @@ runs:
               ssh $DEPLOY_USER@$DEPLOY_HOST "mkdir -p ${CODE_DIR}"
 
               # 复制构建产物
-              scp -r dist/* $DEPLOY_USER@$DEPLOY_HOST:${CODE_DIR}/
+              scp -r ${SOURCE_DIR}/* $DEPLOY_USER@$DEPLOY_HOST:${CODE_DIR}/
 
               # 修改软链接
               ssh $DEPLOY_USER@$DEPLOY_HOST "ln -sfn ${CODE_DIR} ${DEPLOY_DIR}/current"

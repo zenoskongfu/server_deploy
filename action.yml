@@ -17,6 +17,10 @@ inputs:
     server_host:
         description: "Server hostname or IP"
         required: true
+    node_version:
+        description: "Node.js version to use"
+        required: true
+        default: "18"
 
 runs:
     using: "composite"
@@ -28,7 +32,7 @@ runs:
 
         - name: Install dependencies
           shell: bash
-          run: npm ci
+          run: npm install
 
         - name: Build
           shell: bash

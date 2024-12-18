@@ -1,18 +1,26 @@
-## 介绍
+# Web Deploy Action
 
-这是一个部署前端网页到远程服务器的Action
+[简体中文](./README.zh-CN.md) | English
 
-**支持任意远程服务器**
-- 阿里云
-- 腾讯云
-- 华为云
-- ...
+A GitHub Action for deploying Web applications to a remote server via SSH.
 
-> 为什么支持任意远程服务器，两个原因
-> - 部署前端项目很简单，只需要传递文件给服务就可以
-> - 与服务器交互的方式是ssh，所以支持ssh的服务器都可以
+## Features
+- Automated Web application deployment
+- Secure SSH-based deployment
+- Version management with timestamped releases
+- Symlink-based zero-downtime deployment
 
-## 用法
+## Inputs
+| Name | Description | Required | Default |
+|------|-------------|----------|---------|
+| source_dir | Directory containing files to deploy | Yes | dist |
+| deploy_dir | Target directory on the server | Yes | - |
+| server_key | SSH private key for server access | Yes | - |
+| server_user | SSH username | Yes | - |
+| server_host | Server hostname or IP | Yes | - |
+| node_version | Node.js version to use | Yes | 18 |
+
+## Usage Example
 
 ```yml
 on:
@@ -30,7 +38,7 @@ jobs:
             #...
             #...
 
-            - name: Test Action
+            - name: Deploy to Server
               uses: zenoskongfu/server_deploy@0.0.1
               with:
                   source_dir: "dist"
@@ -38,23 +46,21 @@ jobs:
                   server_key: ${{secrets.SERVER_KEY}}
                   server_user: ${{secrets.SERVER_USER_NAME}}
                   server_host: ${{secrets.SERVER_HOST}}
-
 ```
-- 先做一些必要操作，安装依赖，代码构建等等
-- 然后使用`zenoskongfu/server_deploy`开始将代码传输给服务器
-  
-`zenoskongfu/server_deploy`需要的参数是：
-- source_dir: 构建产物的路径
-- deploy_dir: 部署到服务器的路径
-- server_key: 与服务器通信的SSH私钥
-- server_user: 服务器的登录账号
-- server_host: 服务器的IP或域名
 
+### Prerequisites
+- Perform necessary operations like installing dependencies and building code
+- Use `zenoskongfu/server_deploy` to transfer code to the server
 
-### 效果
+Required parameters for `zenoskongfu/server_deploy`:
+- source_dir: Path to build artifacts
+- deploy_dir: Deployment path on server
+- server_key: SSH private key for server communication
+- server_user: Server login account
+- server_host: Server IP or domain name
 
-构建产物会被传输至服务器
+### Result
+Build artifacts will be transferred to the server.
 
-### 亮点
-
-`zenoskongfu/server_deploy`采用软链接current，每次部署新目录，都会将current指向新生成的目录
+### Highlights
+`zenoskongfu/server_deploy` uses a 'current' symlink - each deployment creates a new directory, and 'current' points to the newly generated directory.
